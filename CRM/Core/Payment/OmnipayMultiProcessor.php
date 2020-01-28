@@ -580,8 +580,6 @@ class CRM_Core_Payment_OmnipayMultiProcessor extends CRM_Core_Payment_PaymentExt
       $cardFields['billingState'] = CRM_Core_PseudoConstant::stateProvinceAbbreviation($cardFields['billingState']);
     }
 
-    $this->copyShippingFieldsFromBillingIfEmpty($cardFields);
-
     if (empty($cardFields['email'])) {
       if (!empty($params['email-' . $billingID])) {
         $cardFields['email'] = $params['email-' . $billingID];
@@ -598,21 +596,6 @@ class CRM_Core_Payment_OmnipayMultiProcessor extends CRM_Core_Payment_PaymentExt
       }
     }
     return $cardFields;
-  }
-
-  /**
-   * To prevent errors like Sagepay's "3140 : The DeliveryCountry value is invalid",
-   * we copy billing values where shipping values are empty
-   */
-  protected function copyShippingFieldsFromBillingIfEmpty(&$cardFields) {
-    $fieldSuffixes = [ 'Address1', 'Address2', 'City', 'Postcode', 'State', 'Country' ];
-    foreach($fieldSuffixes as $fieldSuffix) {
-      $billingField = 'billing' . $fieldSuffix;
-      $shippingField = 'shipping' . $fieldSuffix;
-      if (empty($cardFields[$shippingField]) && isset($cardFields[$billingField])) {
-        $cardFields[$shippingField] = $cardFields[$billingField];
-      }
-    }
   }
 
   /**

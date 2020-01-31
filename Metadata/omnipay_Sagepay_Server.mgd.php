@@ -80,7 +80,7 @@ return array(
           'payment_type' => 3,
           'url_recur_default' => 'http://unused.com',
           'url_recur_test_default' => 'http://unused.com',
-          'is_recur' => 0,
+          'is_recur' => 1,
         ),
     ),
 );

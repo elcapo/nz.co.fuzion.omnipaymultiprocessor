@@ -11,20 +11,28 @@ trait SagepayTestTrait {
 
     protected function getNewContributionPage($processorID) {
         return [
-            "title" => "Help Support CiviCRM!",
-            "financial_type_id" => 1,
-            "is_monetary" => TRUE,
-            "is_pay_later" => 0,
-            "is_quick_config" => TRUE,
-            "is_allow_other_amount" => 1,
-            "min_amount" => 10.00,
-            "max_amount" => 10000.00,
-            "goal_amount" => 100000.00,
-            "is_email_receipt" => 1,
-            "is_active" => 1,
-            "amount_block_is_active" => 1,
+            "title" => "Donate",
+            "financial_type_id" => "1",
+            "is_credit_card_only" => "0",
+            "is_monetary" => "1",
+            "is_recur" => "0",
+            "is_confirm_enabled" => "0",
+            "is_recur_interval" => "0",
+            "is_recur_installments" => "0",
+            "adjust_recur_start_date" => "0",
+            "is_pay_later" => "0",
+            "pay_later_text" => "I will send payment by check",
+            "is_partial_payment" => "0",
+            "is_allow_other_amount" => "1",
+            "is_email_receipt" => "0",
+            "is_active" => "1",
+            "amount_block_is_active" => "1",
+            "start_date" => "2020-02-20 09:17:00",
+            "created_date" => "2020-02-20 09:17:53",
             "currency" => "GBP",
-            "is_billing_required" => 0,
+            "is_share" => "0",
+            "is_billing_required" => "0",
+            "contribution_type_id" => "1",
             "payment_processor" => $processorID,
         ];
     }
@@ -71,20 +79,19 @@ trait SagepayTestTrait {
         ];
     }
 
-    protected function getContributionPageSubmission($contributionPageID, $processorID, $priceSetID) {
+    protected function getContributionPageSubmission($contributionPageID, $contactID, $processorID, $priceSetID) {
         $newTransaction = $this->getNewTransaction();
 
         return [
             "id" => $contributionPageID,
-            "email-5" => $newTransaction["card"]["email"],
-            "payment_processor_id" => $processorID,
+            "contact_id" => $contactID,
             "amount" => $newTransaction["amount"],
-            "currencyID" => $newTransaction["currency"],
-            "is_quick_config" => 1,
             "price_set_id" => $priceSetID,
+            "payment_processor_id" => $processorID,
         ];
     }
 
+    // This same information is in the mock: SagepayOneoffPaymentSecret.txt
     protected function getSagepayTransactionSecret() {
         return [
             "VPSProtocol" => "3.00",
@@ -96,10 +103,11 @@ trait SagepayTestTrait {
         ];
     }
 
-    protected function getSagepayPaymentConfirmation() {
+    // This same information is in the mock: SagepayOneoffPaymentSuccess.txt
+    protected function getSagepayPaymentConfirmation($processorID) {
         return [
-            "q" => "civicrm/payment/ipn/99999/1",
-            "processor_id" => "1",
+            "q" => "civicrm/payment/ipn/99999/" . $processorID,
+            "processor_id" => $processorID,
             "VPSProtocol" => "3.00",
             "TxType" => "PAYMENT",
             "VendorTxCode" => "99999",

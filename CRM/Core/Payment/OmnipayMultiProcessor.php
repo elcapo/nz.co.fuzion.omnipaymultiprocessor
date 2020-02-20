@@ -35,7 +35,6 @@ use Omnipay\Common\Http\Client;
 use GuzzleHttp\Client as GuzzleClient;
 use Http\Adapter\Guzzle6\Client as HttpPlugClient;
 
-
 /**
  * Class CRM_Core_Payment_OmnipayMultiProcessor.
  */
@@ -195,7 +194,7 @@ class CRM_Core_Payment_OmnipayMultiProcessor extends CRM_Core_Payment_PaymentExt
         $response->redirect();
       }
       else {
-        return $this->handleError('alert', 'failed processor transaction ' . $this->_paymentProcessor['payment_processor_type'], array($response->getCode() => $response->getMessage()));
+          return $this->handleError('alert', 'failed processor transaction ' . $this->_paymentProcessor['payment_processor_type'], array($response->getCode() => $response->getMessage()));
       }
     }
     catch (\Exception $e) {

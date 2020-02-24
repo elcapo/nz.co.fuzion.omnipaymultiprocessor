@@ -62,6 +62,7 @@ return array(
           )
         ),
         'ipn_processing_delay' => 0,
+        'continuous_authority' => TRUE,
         'notification_from_different_session' => TRUE,
         'gateway_params' => ['billingForShipping' => 1],
       ),

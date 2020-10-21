@@ -20,7 +20,7 @@ use GuzzleHttp\Psr7\Response;
  *
  * @group headless
  */
-class api_PayTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
+class api_PayTest extends \PHPUnit\Framework\TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
   use \Civi\Test\Api3TestTrait;
   use HttpClientTestTrait;
 
@@ -42,6 +42,8 @@ class api_PayTest extends \PHPUnit_Framework_TestCase implements HeadlessInterfa
 
   /**
    * Test the pre-approval function.
+   *
+   * @throws \CRM_Core_Exception
    */
   public function testPayRest() {
 
@@ -98,7 +100,7 @@ class api_PayTest extends \PHPUnit_Framework_TestCase implements HeadlessInterfa
     $this->assertEquals('paypal', $response3['payer']['payment_method']);
     $this->assertEquals('B-2L159413TW638025H', $response3['payer']['funding_instruments'][0]['billing']['billing_agreement_id']);
     $this->assertEquals([[
-      'description' => $contact['id'],
+      'description' => $contact['id'] . '-1-Recurring payment',
       'amount' => ['total' => '10.00', 'currency' => 'USD'],
       'invoice_number' => '',
     ]], $response3['transactions']);
@@ -165,7 +167,7 @@ class api_PayTest extends \PHPUnit_Framework_TestCase implements HeadlessInterfa
 "description":"121 : 203-121-Help Support Civ",
 "invoice_number":"121",
 "item_list":{
- 
+
 },
 "related_resources":[{
  "sale":{

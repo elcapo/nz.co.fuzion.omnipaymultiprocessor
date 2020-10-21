@@ -598,6 +598,17 @@ class FunctionsTest extends BaseTest
         );
     }
 
+    public function testCorrectlyRendersSetCookieHeadersToString()
+    {
+        $response = new Psr7\Response(200, [
+            'Set-Cookie' => ['bar','baz','qux']
+        ], 'hello', '1.0', 'FOO');
+        $this->assertEquals(
+            "HTTP/1.0 200 FOO\r\nSet-Cookie: bar\r\nSet-Cookie: baz\r\nSet-Cookie: qux\r\n\r\nhello",
+            Psr7\str($response)
+        );
+    }
+
     public function parseParamsProvider()
     {
         $res1 = [
@@ -769,6 +780,12 @@ class FunctionsTest extends BaseTest
     {
         $message = new Psr7\Response(200, [], 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.');
         $this->assertEquals('Lorem ipsu (truncated...)', Psr7\get_message_body_summary($message, 10));
+    }
+
+    public function testMessageBodySummaryWithSpecialUTF8Characters()
+    {
+        $message = new Psr7\Response(200, [], '’é€௵ဪ‱');
+        self::assertEquals('’é€௵ဪ‱', Psr7\get_message_body_summary($message));
     }
 
     public function testMessageBodySummaryWithEmptyBody()

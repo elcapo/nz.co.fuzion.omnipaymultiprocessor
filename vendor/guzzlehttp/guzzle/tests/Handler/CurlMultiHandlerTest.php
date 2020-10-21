@@ -15,7 +15,7 @@ class CurlMultiHandlerTest extends TestCase
         $a = new CurlMultiHandler();
         $request = new Request('GET', Server::$url);
         $response = $a($request, [])->wait();
-        $this->assertSame(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -46,10 +46,6 @@ class CurlMultiHandlerTest extends TestCase
             $response->cancel();
             $responses[] = $response;
         }
-
-        foreach($responses as $r) {
-            $this->assertSame('rejected', $response->getState());
-        }
     }
 
     public function testCannotCancelFinished()
@@ -60,7 +56,6 @@ class CurlMultiHandlerTest extends TestCase
         $response = $a(new Request('GET', Server::$url), []);
         $response->wait();
         $response->cancel();
-        $this->assertSame('fulfilled', $response->getState());
     }
 
     public function testDelaysConcurrently()
@@ -68,24 +63,10 @@ class CurlMultiHandlerTest extends TestCase
         Server::flush();
         Server::enqueue([new Response()]);
         $a = new CurlMultiHandler();
-        $expected = \GuzzleHttp\_current_time() + (100 / 1000);
+        $expected = microtime(true) + (100 / 1000);
         $response = $a(new Request('GET', Server::$url), ['delay' => 100]);
         $response->wait();
-        $this->assertGreaterThanOrEqual($expected, \GuzzleHttp\_current_time());
-    }
-
-    public function testUsesTimeoutEnvironmentVariables()
-    {
-        $a = new CurlMultiHandler();
-
-        //default if no options are given and no environment variable is set
-        $this->assertEquals(1, $this->readAttribute($a, 'selectTimeout'));
-
-        putenv("GUZZLE_CURL_SELECT_TIMEOUT=3");
-        $a = new CurlMultiHandler();
-        $selectTimeout = getenv('GUZZLE_CURL_SELECT_TIMEOUT');
-        //Handler reads from the environment if no options are given
-        $this->assertEquals($selectTimeout, $this->readAttribute($a, 'selectTimeout'));
+        $this->assertGreaterThanOrEqual($expected, microtime(true));
     }
 
     /**

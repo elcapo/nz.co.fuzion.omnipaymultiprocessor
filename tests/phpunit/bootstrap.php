@@ -14,6 +14,7 @@ require_once __DIR__ . '/HttpClientTestTrait.php';
 require_once __DIR__ . '/PaypalRestTestTrait.php';
 require_once __DIR__ . '/SagepayTestTrait.php';
 require_once __DIR__ . '/EwayRapidDirectTestTrait.php';
+require_once __DIR__ . '/OmnipayTestTrait.php';
 
 eval(cv('php:boot --level=classloader', 'phpcode'));
 

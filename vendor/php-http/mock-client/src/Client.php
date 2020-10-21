@@ -12,6 +12,7 @@ use Http\Message\RequestMatcher;
 use Http\Message\ResponseFactory;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -28,7 +29,7 @@ class Client implements HttpClient, HttpAsyncClient
     use VersionBridgeClient;
 
     /**
-     * @var ResponseFactory
+     * @var ResponseFactory|ResponseFactoryInterface
      */
     private $responseFactory;
 
@@ -62,8 +63,17 @@ class Client implements HttpClient, HttpAsyncClient
      */
     private $defaultException;
 
-    public function __construct(ResponseFactory $responseFactory = null)
+    /**
+     * @param ResponseFactory|ResponseFactoryInterface|null
+     */
+    public function __construct($responseFactory = null)
     {
+        if (!$responseFactory instanceof ResponseFactory && !$responseFactory instanceof ResponseFactoryInterface && null !== $responseFactory) {
+            throw new \TypeError(
+                sprintf('%s::__construct(): Argument #1 ($responseFactory) must be of type %s|%s|null, %s given', self::class, ResponseFactory::class, ResponseFactoryInterface::class, get_debug_type($responseFactory))
+            );
+        }
+
         $this->responseFactory = $responseFactory ?: MessageFactoryDiscovery::find();
     }
 
@@ -122,6 +132,12 @@ class Client implements HttpClient, HttpAsyncClient
      */
     public function on(RequestMatcher $requestMatcher, $result)
     {
+        if (!$result instanceof ResponseInterface && !$result instanceof Exception && !$result instanceof ClientExceptionInterface && !is_callable($result)) {
+            throw new \TypeError(
+                sprintf('%s::on(): Argument #2 ($result) must be of type %s|%s|%s|callable, %s given', self::class, ResponseInterface::class, Exception::class, ClientExceptionInterface::class, get_debug_type($result))
+            );
+        }
+
         $callable = self::makeCallable($result);
 
         $this->conditionalResults[] = [
@@ -132,8 +148,6 @@ class Client implements HttpClient, HttpAsyncClient
 
     /**
      * @param ResponseInterface|Exception|ClientExceptionInterface|callable $result
-     *
-     * @throws \InvalidArgumentException
      *
      * @return callable
      */
@@ -149,13 +163,9 @@ class Client implements HttpClient, HttpAsyncClient
             };
         }
 
-        if ($result instanceof \Exception) {
-            return function () use ($result) {
-                throw $result;
-            };
-        }
-
-        throw new \InvalidArgumentException('Result must be either a response, an exception, or a callable');
+        return function () use ($result) {
+            throw $result;
+        };
     }
 
     /**
@@ -176,7 +186,7 @@ class Client implements HttpClient, HttpAsyncClient
      */
     public function setDefaultException(\Exception $defaultException = null)
     {
-        if (!$defaultException instanceof Exception) {
+        if (null !== $defaultException && !$defaultException instanceof Exception) {
             @trigger_error('Clients may only throw exceptions of type '.Exception::class.'. Setting an exception of class '.get_class($defaultException).' will not be possible anymore in the future', E_USER_DEPRECATED);
         }
         $this->defaultException = $defaultException;
@@ -215,6 +225,7 @@ class Client implements HttpClient, HttpAsyncClient
 
     public function reset()
     {
+        $this->conditionalResults = [];
         $this->responses = [];
         $this->exceptions = [];
         $this->requests = [];
